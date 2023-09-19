@@ -5,76 +5,110 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
+
 public class Main {
-    public static void main(String[] args) throws Exception {
+    Main() {
+        try {
+            benchmark();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) {
+        new Main();
+    }
+
+    private static Path getBookPath(String book) {
+        return Paths.get(String.format("src/main/resources/books/%s.txt", book));
+    }
+
+    public void benchmark() throws IOException {
         String[] books = {"bible", "the-odyssey"};
 
-        String search = "God";
         String book = books[0];
 
         long start;
         long end;
 
         start = System.currentTimeMillis();
-        var bufferedReader = usingBufferedReader(book, search);
+        usingBufferedReader(book);
         end = System.currentTimeMillis();
 
-        System.out.println("BufferedReader: \n  " + "Result -> " + bufferedReader + "\n  Time (ms): " + (end - start));
+        System.out.println("BufferedReader: \n" + "  Execution Time (ms): " + (end - start));
 
         start = System.currentTimeMillis();
-        var stream = usingStreams(book, search);
+        usingStreams(book);
         end = System.currentTimeMillis();
 
-        System.out.println("Stream: \n  " + "Result -> " + stream + "\n  Time (ms): " + (end - start));
+        System.out.println("Stream: \n" + "  Execution Time (ms): " + (end - start));
 
         start = System.currentTimeMillis();
-        var parallel = usingParallelStreams(book, search);
+        usingParallelStreams(book);
         end = System.currentTimeMillis();
 
-        System.out.println("Parallel: \n  " + "Result -> " + parallel + "\n  Time (ms): " + (end - start));
+        System.out.println("Parallel: \n" + "  Execution Time (ms): " + (end - start));
     }
 
-    private static int usingBufferedReader(String book, String search) throws IOException {
+    private String normalize(String aString) {
+        return aString.replaceAll("[^a-zA-Z0-9]|\n", " ").toLowerCase();
+    }
+
+    private void usingBufferedReader(String book) throws IOException {
+        Map<Character, Set<String>> words = new HashMap<>();
         Path path = getBookPath(book);
         BufferedReader reader = Files.newBufferedReader(path);
 
         String line;
 
-        int count = 0;
-
         while ((line = reader.readLine()) != null) {
-            if (line.contains(search)) count++;
+            var normalized = normalize(line);
+
+            for (var word : normalized.split(" ")) {
+                if (word.isEmpty()) continue;
+
+                var letter = word.charAt(0);
+
+                var group = words.computeIfAbsent(letter, k -> new TreeSet<>());
+
+                group.add(word);
+            }
         }
 
         reader.close();
-
-        return count;
     }
 
-    private static int usingStreams(String book, String search) throws IOException {
+    private void usingStreams(String book) throws IOException {
         Path path = getBookPath(book);
         Stream<String> stream = Files.lines(path);
 
-        var count = stream.filter((l) -> l.contains(search)).count();
-        stream.close();
+        var words = stream
+                .map(this::normalize)
+                .map(line -> line.split(" "))
+                .flatMap(Arrays::stream)
+                .filter(w -> !w.isEmpty())
+                .collect(groupingBy(word -> word.charAt(0),
+                        Collectors.toCollection(TreeSet::new)));
 
-        return (int) count;
+        stream.close();
     }
 
-    private static int usingParallelStreams(String book, String search) throws IOException {
+    private void usingParallelStreams(String book) throws IOException {
         Path path = getBookPath(book);
         Stream<String> parallel = Files.lines(path).parallel();
 
-        var count = parallel.filter((l) -> l.contains(search)).count();
+        var words = parallel.map(this::normalize)
+                .map(line -> line.split(" "))
+                .flatMap(Arrays::stream)
+                .filter(w -> !w.isEmpty())
+                .collect(groupingBy(word -> word.charAt(0),
+                        Collectors.toCollection(TreeSet::new)));
         parallel.close();
-
-        return (int) count;
-    }
-
-    private static Path getBookPath(String book) {
-        return Paths.get(String.format("src/main/resources/books/%s.txt", book));
     }
 
 }
