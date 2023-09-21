@@ -6,21 +6,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 
 public class Main {
-    Main() {
-        try {
-            benchmark();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+    static final int NUMBER_OF_ITERATIONS = 5;
+
+    Main() throws Exception {
+        init();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         new Main();
     }
 
@@ -28,40 +28,54 @@ public class Main {
         return Paths.get(String.format("src/main/resources/books/%s.txt", book));
     }
 
-    public void benchmark() throws IOException {
+    public void init() throws Exception {
         String[] books = {"bible", "the-odyssey"};
 
-        String book = books[0];
+        Path book = getBookPath(books[0]);
 
-        long start;
-        long end;
+        var bufferedReader = benchmark(() -> {
+            usingBufferedReader(book);
+            return null;
+        });
 
-        start = System.currentTimeMillis();
-        usingBufferedReader(book);
-        end = System.currentTimeMillis();
+        var stream = benchmark(() -> {
+            usingStreams(book);
+            return null;
+        });
 
-        System.out.println("BufferedReader: \n" + "  Execution Time (ms): " + (end - start));
+        var parallelStream = benchmark(() -> {
+            usingParallelStreams(book);
+            return null;
+        });
 
-        start = System.currentTimeMillis();
-        usingStreams(book);
-        end = System.currentTimeMillis();
+        printResult("BufferedReader", bufferedReader);
+        printResult("Stream", stream);
+        printResult("Parallel Stream", parallelStream);
+    }
 
-        System.out.println("Stream: \n" + "  Execution Time (ms): " + (end - start));
+    private double benchmark(Callable<?> callable) throws Exception {
+        long time = 0;
 
-        start = System.currentTimeMillis();
-        usingParallelStreams(book);
-        end = System.currentTimeMillis();
+        for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+            var start = System.currentTimeMillis();
+            callable.call();
+            var end = System.currentTimeMillis();
 
-        System.out.println("Parallel: \n" + "  Execution Time (ms): " + (end - start));
+            time += end - start;
+        }
+
+
+        double avg = (double) time / NUMBER_OF_ITERATIONS;
+
+        return Math.floor(avg * 100) / 100;
     }
 
     private String normalize(String aString) {
         return aString.replaceAll("[^a-zA-Z0-9]|\n", " ").toLowerCase();
     }
 
-    private void usingBufferedReader(String book) throws IOException {
+    private void usingBufferedReader(Path path) throws IOException {
         Map<Character, Set<String>> words = new HashMap<>();
-        Path path = getBookPath(book);
         BufferedReader reader = Files.newBufferedReader(path);
 
         String line;
@@ -83,8 +97,7 @@ public class Main {
         reader.close();
     }
 
-    private void usingStreams(String book) throws IOException {
-        Path path = getBookPath(book);
+    private void usingStreams(Path path) throws IOException {
         Stream<String> stream = Files.lines(path);
 
         var words = stream
@@ -98,8 +111,7 @@ public class Main {
         stream.close();
     }
 
-    private void usingParallelStreams(String book) throws IOException {
-        Path path = getBookPath(book);
+    private void usingParallelStreams(Path path) throws IOException {
         Stream<String> parallel = Files.lines(path).parallel();
 
         var words = parallel.map(this::normalize)
@@ -111,4 +123,7 @@ public class Main {
         parallel.close();
     }
 
+    private void printResult(String label, double result) {
+        System.out.println(label + ": \n" + "  Execution Time (ms): " + result);
+    }
 }
