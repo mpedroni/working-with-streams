@@ -12,16 +12,16 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 
-public class Main {
+public class WorkingWithStreams {
 
     static final int NUMBER_OF_ITERATIONS = 5;
 
-    Main() throws Exception {
+    WorkingWithStreams() throws Exception {
         init();
     }
 
     public static void main(String[] args) throws Exception {
-        new Main();
+        new WorkingWithStreams();
     }
 
     private static Path getBookPath(String book) {
@@ -70,6 +70,9 @@ public class Main {
         return Math.floor(avg * 100) / 100;
     }
 
+    /**
+     * Given a string, return a new string removing everything that is not a letter, a number or the new line character
+     */
     private String normalize(String aString) {
         return aString.replaceAll("[^a-zA-Z0-9]|\n", " ").toLowerCase();
     }
@@ -88,6 +91,7 @@ public class Main {
 
                 var letter = word.charAt(0);
 
+                // get the letter group if present, else create a new one
                 var group = words.computeIfAbsent(letter, k -> new TreeSet<>());
 
                 group.add(word);
@@ -106,6 +110,8 @@ public class Main {
                 .flatMap(Arrays::stream)
                 .filter(w -> !w.isEmpty())
                 .collect(groupingBy(word -> word.charAt(0),
+                        // set a TreeSet as collector to remove duplicated words;
+                        // the default collector is a List, which accepts duplicated values
                         Collectors.toCollection(TreeSet::new)));
 
         stream.close();
@@ -120,6 +126,7 @@ public class Main {
                 .filter(w -> !w.isEmpty())
                 .collect(groupingBy(word -> word.charAt(0),
                         Collectors.toCollection(TreeSet::new)));
+
         parallel.close();
     }
 
