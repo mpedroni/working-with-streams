@@ -24,9 +24,9 @@ For info about the used tools and hardware, check the [environment](#environment
 
 ## Conclusion
 
-All the three methods were implemented using the easiest way that I can. Besides the better results, implementing it using streams is easier than using the Collection framework (once you learn how to work with streams) and deliver a more readable code.
+All the three methods were implemented on the easiest way that I found. Besides the better results, using streams is easier rather the Collection framework (once you learn how to work the streams API) and we reach a better code readability.
 
-So, despite the Collection framework is more intuitive than streams at first glance, worth it a lot spending some time learning how to use streams, specially when dealing with complex operations, because the idea of pipeline makes it possible to create very complex data manipulations without losing the code readability. 
+So, despite the Collection framework is more intuitive than streams at first glance, worth it a lot to spend some time learning how to use streams, specially when it is necessary make complex operations and/or transformations over a data group, because the idea of pipeline (sequential operations, over each element, as a factory production line) which the stream brings to the code makes it easier to create complex data manipulations without losing the code readability. 
 
 ## Environment
 
