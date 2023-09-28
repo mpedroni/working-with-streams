@@ -36,7 +36,7 @@ Besides the better results, using streams can be easier to use rather the Collec
 
 The downside of streams is, IMO, its learning curve. The Collection framework have a more familiar and intuitive API (probably because all we need to know is how to iterate over all elements, and get/delete a specific one). In the other hand, the stream has a quite particular API, which demands some time reading the Java docs and a couple of consults to StackOverflow to figure out how to make it work and get used to it.
 
-Feel free to comment or contribute with better and more optimized implementations. Any ideas are welcome.
+Feel free to comment or contribute with better and more optimized implementations. Any ideas are welcome. You can check the source code [here](./src/main/java/com/mpedroni/streams/WorkingWithStreams.java).
 
 ## Further reading
 
