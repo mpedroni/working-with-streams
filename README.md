@@ -1,17 +1,5 @@
 # working-with-streams
 
-- [x] por que as streams tiveram melhores resultados?
-  - execution plan
-  - optimizations (even skipping some steps)
-  - parallel streams benefits when there are steps which can be applied individually
-  - collection framework suffers even more when is necessary to iterate more than once
-- [x] por que streams são mais intuitivas?
-  - reading a stream is similar to reading a text
-- [x] "desvantagens" das streams
-  - curva de aprendizado
-- [ ] chamada para ler o código
-- [ ] deixar claro que são conclusões minhas e explicar o motivo
-
 The purpose of this repository is to practice studies about Java Streams. The main idea here is to implement equivalent operations using streams (both serial and parallel) and the Collection framework.
 
 The application reads a huge text file (e.g. the Bible), group all the words by the first letter, then remove the duplicates and sort the created groups.
@@ -34,7 +22,7 @@ All execution times are an average of five executions.
 
 For info about the used tools and hardware, check the [environment](#environment) section.
 
-## Why streams are faster?
+## Why are streams faster?
 
 When using streams, under the hood, before effectively executing the pipeline, there are a series of analysis in order create an optimized execution plan to find the better way to do such operations over the data. These optimizations range from changing the operations order (to be able to apply all as many operations as possible in the same iteration, for example) to remove some useless steps (like removing duplicates from a `Tree`, which doesn't have duplicated data at all). This execution plan is very powerful and can improve significantly the execution time in opposite with the Collection framework.
 
