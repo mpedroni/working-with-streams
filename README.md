@@ -24,23 +24,23 @@ For info about the used tools and hardware, check the [environment](#environment
 
 ## Why are streams faster?
 
-When using streams, under the hood, before effectively executing the pipeline, there are a series of analysis in order create an optimized execution plan to find the better way to do such operations over the data. These optimizations range from changing the operations order (to be able to apply all as many operations as possible in the same iteration, for example) to remove some useless steps (like removing duplicates from a `Tree`, which doesn't have duplicated data at all). This execution plan is very powerful and can improve significantly the execution time in opposite with the Collection framework.
+When using streams, under the hood, before effectively executing the pipeline, there are a series of analysis in order to create an optimized execution plan to find the better way to do such operations over the data. These optimizations ranges from change the operations order (to apply as many as possible operations in the same iteration, for example) to remove some useless steps (like removing duplicates from a `Tree`, which doesn't have duplicated data at all). This execution plan may improve significantly the execution time in opposite with the Collection framework.
 
-There are two types of operations: stateless and stateful. Stateless operations don't need to know anything about the other elements on the list to be applied. `map` and `filter` are examples of stateless operations. In the other hand, stateful operations need to access other elements on the group to be evaluated, such as `distinct` and `sorted`.
+There are two types of operations: stateless and stateful. Stateless operations don't need to know about the other elements on the list to be applied. `map` and `filter` are examples of stateless operations. In the other hand, stateful operations need to access other elements on the group to be evaluated, such as `distinct` and `sorted`.
 
-Think about it for a moment... if a stream pipeline has a sequence of stateless operations, it implies that once I know all the operations which must be applied, it is possible to apply it over each element independently, **at the same time**, and that is exactly what happens when using parallel streams.
+Think about it for a moment... if a stream pipeline has a sequence of stateless operations, it implies once all the operations which must be applied are known, it is possible to apply it over each element independently, **at the same time**, and that is exactly what happens when using parallel streams.
 
 ## Conclusion
 
 Besides the better results, using streams can be easier to use rather the Collection framework when we think in streams as a pipeline of operations and transformations over each element of a collection, which allows us to create complex transformations with a great readability at the same time. 
 
-The downside of streams is, IMO, its learning curve. The Collection framework have a more familiar and intuitive API (probably because all we need to know is how to iterate over all elements, and get/delete a specific one). In the other hand, the stream has a quite particular API, which demands some time reading the Java docs and a couple of consults to StackOverflow to figure out how to make it work and get used to it.
+The downside of streams is, IMO, the learning curve. The Collection framework have a familiar and intuitive API (probably because all we need to know is how to iterate over all elements, and get/delete a specific one). In the other hand, the stream has a quite particular API, which demands spending some time over Java docs and StackOverflow to figure out how to make it work and get used to it.
 
 Feel free to comment or contribute with better and more optimized implementations. Any ideas are welcome. You can check the source code [here](./src/main/java/com/mpedroni/streams/WorkingWithStreams.java).
 
 ## Further reading
 
-Here are two resources about Java Stream. The first one is an overview with some usage examples, and the second one explores streams a little deeper, addressing how it works under the hood:
+Here are two resources about Java Stream. The first one is an overview with some usage examples, and the second one explores streams in a deeper way, addressing how it works under the hood:
 
 - [The Java 8 Stream API Tutorial](https://www.baeldung.com/java-8-streams)
 - [Understanding Java Streams](https://theboreddev.com/understanding-java-streams/)
